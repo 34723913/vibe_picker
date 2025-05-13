@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>你今天的 Vibe？</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="Favicon.png" type="image/png">
+</head>
+<body>
+<div class="background-gradient"></div>
+
+<div class="page-wrapper">
+  <main class="main-content-wrapper">
+    <div class="container" id="welcome-container">
+      <header>
+        <h1 id="typewriter-title">&nbsp;</h1>
+        <p>輸入你的暱稱，透過幾個簡單的問題，找到最適合你心情的音樂！</p>
+      </header>
+      <div class="input-group">
+        <label for="nickname-input">你的暱稱：</label>
+        <input type="text" id="nickname-input" placeholder="例如：音樂探險家">
+      </div>
+      <button class="cta-button" id="start-quiz-button">開始探索</button>
+    </div>
+
+    <div class="container hidden" id="quiz-container">
+      <header>
+        <h2 id="user-greeting" style="margin-bottom: 20px; color: var(--accent-color2);">嗨，朋友！</h2>
+      </header>
+      <div id="question-area">
+        <h2 id="question-text">問題文字會顯示在這裡...</h2>
+        <div id="options-container">
+        </div>
+      </div>
+    </div>
+
+    <div class="container hidden" id="result-container">
+      <h2 id="result-title">結果標題會顯示在這裡...</h2>
+      <p style="font-size: 1.5em; color: var(--accent-color1); margin-bottom: 25px; font-weight: bold;" id="final-vibe-text">你的Vibe是...</p>
+      <div id="youtube-player-wrapper">
+      </div>
+      <button class="cta-button" id="restart-button">重新開始</button>
+    </div>
+  </main>
+
+  <footer>
+    <p>Vibe Check Tool at 侑儒 © 2025</p>
+    <p>IG:cc920521.9898</p>
+  </footer>
+</div>
+
+<script src="script.js" defer></script>
+</body>
+</html>
