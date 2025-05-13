@@ -23,10 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const typewriterElement = document.getElementById('typewriter-title');
 
     if (!welcomeContainer) console.error("CRITICAL ERROR: 'welcome-container' NOT FOUND!");
-    if (!nicknameInput) console.error("CRITICAL ERROR: 'nickname-input' NOT FOUND!");
-    if (!startQuizButton) console.error("CRITICAL ERROR: 'start-quiz-button' NOT FOUND! Quiz cannot start.");
-    if (!quizContainer) console.error("CRITICAL ERROR: 'quiz-container' NOT FOUND!");
-    if (!resultContainer) console.error("CRITICAL ERROR: 'result-container' NOT FOUND!");
+    // ... (其他元素檢查) ...
     if (!youtubePlayerWrapper) console.error("CRITICAL ERROR: 'youtube-player-wrapper' NOT FOUND!");
     if (!typewriterElement) console.warn("Warning: 'typewriter-title' element NOT FOUND, typewriter effect will not run.");
 
@@ -44,11 +41,12 @@ document.addEventListener('DOMContentLoaded', () => {
         "激昂": "PLPEnC3mtptkuub_yFxlEXMPcrfRof6Tis",
         "神秘": "PLJozx4nEjLPHWukhjqt1n02lA6Od88pvx"
     };
+    // !!! 請確保這些數字是你播放清單的【實際影片數量上限】 !!!
     const vibePlaylistCounts = {
-        "開心": 229, // 請根據實際播放清單的影片數量調整
-        "憂鬱": 1114,
-        "激昂": 943,
-        "神秘": 53
+        "開心": 23, // 範例，請替換成實際數量
+        "憂鬱": 15, // 範例
+        "激昂": 40, // 範例
+        "神秘": 18  // 範例
     };
 
     let currentQuestionIndex = 0;
@@ -154,8 +152,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function loadQuestion() {
         if (quizContainer && quizContainer.style.display === 'none') {
-            quizContainer.classList.remove('hidden');
-            quizContainer.style.display = 'block';
+             quizContainer.classList.remove('hidden');
+             quizContainer.style.display = 'block';
         }
         if (currentQuestionIndex < questions.length) {
             const q = questions[currentQuestionIndex];
@@ -219,34 +217,31 @@ document.addEventListener('DOMContentLoaded', () => {
         if(finalVibeTextElement) finalVibeTextElement.textContent = finalVibe;
 
         const playlistId = vibePlaylists[finalVibe];
-        const count = vibePlaylistCounts[finalVibe] || 20;
+        const count = vibePlaylistCounts[finalVibe] || 1; // 確保 count 至少為 1
         const randomIndex = Math.floor(Math.random() * count);
+        
+        // *** 修改：將 mute 參數改為 1，嘗試靜音自動播放 ***
+        const embedUrl = `https://www.youtube.com/embed?listType=playlist&list=${playlistId}&index=${randomIndex}&autoplay=1&controls=1&mute=1`;
 
-        // *** 恢復到你之前確認可以成功嵌入並隨機播放的 URL 格式 ***
-        const embedUrl = `https://www.youtube.com/embed?listType=playlist&list=${playlistId}&index=${randomIndex}&autoplay=1&controls=1&mute=0`;
-        // mute=0 嘗試有聲自動播放，如果瀏覽器阻止，可能需要改為 mute=1 或使用者手動點擊
-
-        console.log(`Playlist ID: ${playlistId}, Max Index (0-based for count): ${count-1}, Chosen RandomIndex (0-based for URL): ${randomIndex}`);
-        console.log('FINAL YOUTUBE EMBED URL:', embedUrl);
+        console.log(`Playlist ID: ${playlistId}, Actual Video Count: ${count}, Chosen RandomIndex (0-based): ${randomIndex}`);
+        console.log('FINAL YOUTUBE EMBED URL (mute=1):', embedUrl);
 
         if (youtubePlayerWrapper) {
-            youtubePlayerWrapper.innerHTML = ''; // 清空，以便插入新的 iframe
+            youtubePlayerWrapper.innerHTML = '';
             const iframe = document.createElement('iframe');
             iframe.id = 'youtube-player-iframe';
             iframe.width = '100%';
             iframe.height = '100%';
-            iframe.src = embedUrl; // 使用恢復後的 embedUrl
+            iframe.src = embedUrl;
             iframe.title = "YouTube video player";
             iframe.frameBorder = "0";
-            // 使用較為通用的 allow 屬性組合
             iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
             iframe.allowFullscreen = true;
-
+            
             iframe.onload = () => console.log("YouTube iframe content loaded (embed). src:", iframe.src);
             iframe.onerror = (e) => {
                 console.error("YouTube iframe FAILED to load content (embed):", iframe.src, "Error event:", e);
-                // 在這裡可以插入更友好的錯誤提示，例如：
-                youtubePlayerWrapper.innerHTML = "<p>抱歉，影片載入失敗。可能是因為影片不允許嵌入、地區限制或網路問題。請嘗試重新整理或稍後再試。</p>";
+                youtubePlayerWrapper.innerHTML = "<p>抱歉，影片載入失敗。可能是影片不允許嵌入、地區限制或網路問題。請確認播放清單內容是否正確，或稍後再試。</p>";
             };
             youtubePlayerWrapper.appendChild(iframe);
         } else {
@@ -259,42 +254,27 @@ document.addEventListener('DOMContentLoaded', () => {
         currentQuestionIndex = 0;
         scores = { "開心": 0, "憂鬱": 0, "激昂": 0, "神秘": 0 };
         if(nicknameInput) nicknameInput.value = localStorage.getItem('vibeNickname') || '';
-        if(youtubePlayerWrapper) {
-            youtubePlayerWrapper.innerHTML = ''; // 清空 iframe
-            // 確保下次可以重新創建 iframe，如果之前是錯誤訊息
-            const iframeCheck = document.getElementById('youtube-player-iframe');
-            if(iframeCheck && iframeCheck.parentElement !== youtubePlayerWrapper){
-                // This case should not happen if innerHTML = '' works as expected
-            } else if (!iframeCheck && document.getElementById('youtube-player-wrapper')){
-                // If wrapper is empty (e.g. after error), it's fine for next embed
-            }
-        }
-
-        switchScreen(resultContainer, welcomeContainer, () => {
-            console.log("Welcome container shown after reset.");
-            startTypewriter(); // 重啟打字機
-        });
+        if(youtubePlayerWrapper) youtubePlayerWrapper.innerHTML = '';
+        switchScreen(resultContainer, welcomeContainer, startTypewriter);
         if (quizContainer) {
             quizContainer.style.display = 'none';
             quizContainer.classList.remove('do-fade-in', 'do-fade-out', 'hidden');
             quizContainer.classList.add('hidden');
         }
-        if (questionArea) {
+         if (questionArea) {
             questionArea.classList.remove('do-fade-in', 'do-fade-out');
         }
     }
 
-    // --- 初始化畫面 ---
     if(quizContainer) quizContainer.style.display = 'none';
     if(resultContainer) resultContainer.style.display = 'none';
-
     if(welcomeContainer) {
         welcomeContainer.style.display = 'block';
-        startTypewriter(); // 初始啟動打字機
+        startTypewriter();
     } else {
-        console.error("CRITICAL ERROR during initial setup: 'welcome-container' NOT FOUND!");
+         console.error("CRITICAL ERROR during initial setup: 'welcome-container' NOT FOUND!");
     }
-
+    
     console.log("--- DOMContentLoaded SCRIPT END ---");
 });
 
